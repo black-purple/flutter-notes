@@ -1,5 +1,4 @@
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -24,7 +23,9 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE "notes" (
         "id" INTEGER NOT NULL PRIMARY KEY,
-        "content" TEXT NOT NULL
+        "title" TEXT NOT NULL,
+        "content" TEXT NOT NULL,
+        "color" INTEGER NOT NULL
       )
       ''');
   }
@@ -34,14 +35,19 @@ class DatabaseHelper {
     var data = notesDb!.rawQuery("SELECT * FROM notes");
     return data;
   }
-  addNote(String note) async {
+  addNote(String noteTitle, String noteContent, int color) async {
     var notesDb = await db;
-    var data = notesDb!.rawInsert("INSERT INTO 'notes' ('content') VALUES ('$note')");
+    var data = notesDb!.rawInsert("INSERT INTO 'notes' ('title', 'content', 'color') VALUES ('$noteTitle', '$noteContent', '$color')");
     return data;
   }
-  updateNote(String newNote, int id) async {
+  updateNoteContent(String newNoteContent, int id) async {
     var notesDb = await db;
-    var data = notesDb!.rawUpdate("UPDATE 'notes' SET 'content' WHERE id=$id");
+    var data = notesDb!.rawUpdate("UPDATE 'notes' SET 'content' = '$newNoteContent' WHERE id=$id");
+    return data;
+  }
+  updateNoteTitle(int newNoteTitle, int id) async {
+    var notesDb = await db;
+    var data = notesDb!.rawUpdate("UPDATE 'notes' SET 'title' = '$newNoteTitle' WHERE id=$id");
     return data;
   }
   deleteNote(int id) async {

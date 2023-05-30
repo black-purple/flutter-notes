@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get/get.dart';
 import 'package:test_ios/db/db.dart';
+import 'package:test_ios/pages/note_page.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -13,21 +15,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _noteController = TextEditingController();
+  final _noteTitleController = TextEditingController();
+  final _noteContentController = TextEditingController();
   final _key = GlobalKey<FormState>();
 
+  Map<int, Color> colors = {
+    0: Colors.redAccent,
+    1: Colors.lightBlue,
+    2: Colors.lightGreenAccent,
+    3: Colors.yellowAccent,
+    4: Colors.greenAccent,
+    5: Colors.blueGrey,
+  };
   List<Map> notes = [];
   DatabaseHelper db = DatabaseHelper();
 
   Future getNotes() async {
     notes = await db.getNotes();
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-    getNotes();
-    setState(() {});
+    setState(() {
+      getNotes();
+    });
   }
 
   @override
@@ -45,15 +58,29 @@ class _HomePageState extends State<HomePage> {
                   key: _key,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 15),
-                    child: CupertinoTextFormFieldRow(
-                      validator: (value) {
-                        if (value != null && value.isEmpty) {
-                          return "Champ obligatoire";
-                        }
-                        return null;
-                      },
-                      placeholder: "Ecrirre une note",
-                      controller: _noteController,
+                    child: Column(
+                      children: [
+                        CupertinoTextFormFieldRow(
+                          validator: (value) {
+                            if (value != null && value.isEmpty) {
+                              return "Champ obligatoire";
+                            }
+                            return null;
+                          },
+                          placeholder: "Titre note",
+                          controller: _noteTitleController,
+                        ),
+                        CupertinoTextFormFieldRow(
+                          validator: (value) {
+                            if (value != null && value.isEmpty) {
+                              return "Champ obligatoire";
+                            }
+                            return null;
+                          },
+                          placeholder: "Contenu note",
+                          controller: _noteContentController,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -63,10 +90,15 @@ class _HomePageState extends State<HomePage> {
                     child: const Text("Ajouter"),
                     onPressed: () {
                       if (_key.currentState!.validate()) {
-                        db.addNote(_noteController.text.trim().toString());
+                        db.addNote(
+                          _noteTitleController.text.trim().toString(),
+                          _noteContentController.text.trim().toString(),
+                          Random().nextInt(5),
+                        );
                         getNotes();
                         setState(() {});
-                        _noteController.clear();
+                        _noteTitleController.clear();
+                        _noteContentController.clear();
                         Navigator.of(context).pop();
                       }
                     },
@@ -84,37 +116,41 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.amber,
         middle: const Text('Notes'),
       ),
-      child: ListView.builder(
+      child: GridView.builder(
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemCount: notes.length,
         itemBuilder: (_, index) => SizedBox(
-          width: double.infinity,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 2),
-            child: Slidable(
-              endActionPane: ActionPane(
-                extentRatio: 0.25,
-                motion: const ScrollMotion(),
-                children: [
-                  SlidableAction(
-                    onPressed: (_) {
-                      db.deleteNote(notes[index]['id']);
-                      setState(() {});
-                    },
-                    autoClose: true,
-                    icon: CupertinoIcons.delete,
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  )
-                ],
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: GestureDetector(
+              onTap: () => Get.to(
+                () => NotePage(
+                  id: notes[index]['id'],
+                  title: notes[index]['title'],
+                  content: notes[index]['content'],
+                  color: notes[index]['color'],
+                ),
               ),
               child: Card(
-                margin: EdgeInsets.zero,
-                child: CupertinoListTile(
-                  backgroundColor: Colors.grey[300],
-                  title: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Text(notes[index]['content']),
-                  ),
+                color: colors[notes[index]['color']],
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          notes[index]['title'],
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          notes[index]['content'],
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ]),
                 ),
               ),
             ),
