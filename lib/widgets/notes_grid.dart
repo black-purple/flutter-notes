@@ -33,14 +33,20 @@ class NotesGrid extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      notes[index]['title'],
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    Hero(
+                      tag: "title ${notes[index]['id']}",
+                      child: Text(
+                        notes[index]['title'],
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    Text(
-                      notes[index]['content'],
-                      overflow: TextOverflow.ellipsis,
+                    Hero(
+                      tag: "content ${notes[index]['id']}",
+                      child:Text(
+                        notes[index]['content'],
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

@@ -83,41 +83,47 @@ class _NotePageState extends State<NotePage> {
             padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
             child: Column(
               children: [
-                Focus(
-                  onFocusChange: (focus) {
-                    if (!focus) {
-                      db.updateNoteTitle(
-                        _titleController.text.toString(),
-                        widget.id,
-                      );
-                    }
-                  },
-                  child: CupertinoTextField(
-                    controller: _titleController,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                    onChanged: (value) {
-                      title = _titleController.text.toString();
+                Hero(
+                  tag: "title ${widget.id}",
+                  child: Focus(
+                    onFocusChange: (focus) {
+                      if (!focus) {
+                        db.updateNoteTitle(
+                          _titleController.text.toString(),
+                          widget.id,
+                        );
+                      }
                     },
+                    child: CupertinoTextField(
+                      controller: _titleController,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      onChanged: (value) {
+                        title = _titleController.text.toString();
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                Focus(
-                  onFocusChange: (focus) {
-                    if (!focus) {
-                      db.updateNoteContent(
-                          _noteController.text.toString(), widget.id);
-                    }
-                  },
-                  child: CupertinoTextField(
-                    controller: _noteController,
-                    minLines: 10,
-                    maxLines: 30,
-                    onChanged: (value) {
-                      content = _noteController.text.toString();
+                Hero(
+                  tag: "content ${widget.id}",
+                  child: Focus(
+                    onFocusChange: (focus) {
+                      if (!focus) {
+                        db.updateNoteContent(
+                            _noteController.text.toString(), widget.id);
+                      }
                     },
+                    child: CupertinoTextField(
+                      controller: _noteController,
+                      minLines: 10,
+                      maxLines: 30,
+                      onChanged: (value) {
+                        content = _noteController.text.toString();
+                      },
+                    ),
                   ),
                 ),
               ],

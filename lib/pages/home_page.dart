@@ -3,7 +3,6 @@ import 'package:flutter_notes/db/db.dart';
 
 import 'package:flutter_notes/widgets/notes_grid.dart';
 import 'package:flutter_notes/widgets/notes_list.dart';
-import 'package:flutter_notes/widgets/picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -131,8 +130,9 @@ class _HomePageState extends State<HomePage> {
                   _isDropdownOpen = false;
                 });
               },
-              child: Container(
-                color: const Color.fromRGBO(0, 0, 0, 0.3),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                color: const Color.fromRGBO(0, 0, 0, 0.4),
               ),
             ),
           if (_isDropdownOpen)
