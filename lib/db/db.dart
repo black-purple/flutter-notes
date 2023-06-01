@@ -24,26 +24,9 @@ class DatabaseHelper {
       CREATE TABLE "notes" (
         "id" INTEGER NOT NULL PRIMARY KEY,
         "title" TEXT NOT NULL,
-        "content" TEXT NOT NULL,
-        "color" INTEGER NOT NULL
+        "content" TEXT NOT NULL
       )
       ''');
-    await db.execute('''
-        CREATE TABLE "islist" (
-        "islist" BOOLEAN DEFAULT false
-      )
-''');
-  }
-
-  layoutSwap(bool n) async {
-    var notesDb = await db;
-    notesDb!.rawQuery("UPDATE 'islist' SET 'islist' = '$n' ");
-  }
-
-  getLayout() async {
-    var notesDb = await db;
-    var data = await notesDb!.rawQuery("SELECT 'islist' FROM islist");
-    return data;
   }
 
   getNotes() async {
@@ -58,10 +41,10 @@ class DatabaseHelper {
     return data;
   }
 
-  addNote(String noteTitle, String noteContent, int color) async {
+  addNote(String noteTitle, String noteContent) async {
     var notesDb = await db;
     var data = notesDb!.rawInsert(
-        "INSERT INTO 'notes' ('title', 'content', 'color') VALUES ('$noteTitle', '$noteContent', '$color')");
+        "INSERT INTO 'notes' ('title', 'content') VALUES ('$noteTitle', '$noteContent')");
     return data;
   }
 
