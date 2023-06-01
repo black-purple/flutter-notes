@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_notes/db/db.dart';
-import 'package:flutter_notes/pages/home_page.dart';
 
 DatabaseHelper db = DatabaseHelper();
 
@@ -45,66 +43,65 @@ class _NotePageState extends State<NotePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-              previousPageTitle: "Notes",
-              trailing: CupertinoButton(
-                onPressed: () {
-                  db.deleteNote(widget.id);
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const HomePage(),
-                    ),
-                  );
-                },
-                child: const Icon(
-                  CupertinoIcons.trash,
-                  color: Color(0xFFFF5252),
-                ),
-              )),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-              child: Column(
-                children: [
-                  Focus(
-                    onFocusChange: (focus) async {
-                      if (!focus) {
-                        db.updateNoteTitle(
-                            _titleController.text.toString(), widget.id);
-                      }
-                    },
-                    child: CupertinoTextField(
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                      onChanged: (value) {
-                        content = _titleController.text.toString();
-                      },
-                      controller: _titleController,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Focus(
-                    onFocusChange: (focus) async {
-                      if (!focus) {
-                        db.updateNoteContent(
-                            _noteController.text.toString(), widget.id);
-                      }
-                    },
-                    child: CupertinoTextField(
-                      minLines: 10,
-                      maxLines: 30,
-                      onChanged: (value) {
-                        content = _noteController.text.toString();
-                      },
-                      controller: _noteController,
-                    ),
-                  ),
-                ],
+        navigationBar: CupertinoNavigationBar(
+            previousPageTitle: "Notes",
+            trailing: CupertinoButton(
+              onPressed: () {
+                db.deleteNote(widget.id);
+                Navigator.of(context).pop();
+              },
+              child: const Icon(
+                CupertinoIcons.trash,
+                color: Color(0xFFFF5252),
               ),
+            )),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+            child: Column(
+              children: [
+                Focus(
+                  onFocusChange: (focus) async {
+                    if (!focus) {
+                      db.updateNoteTitle(
+                        _titleController.text.toString(),
+                        widget.id,
+                      );
+                    }
+                  },
+                  child: CupertinoTextField(
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                    ),
+                    onChanged: (value) {
+                      title = _titleController.text.toString();
+                    },
+                    controller: _titleController,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Focus(
+                  onFocusChange: (focus) async {
+                    if (!focus) {
+                      db.updateNoteContent(
+                          _noteController.text.toString(), widget.id);
+                    }
+                  },
+                  child: CupertinoTextField(
+                    minLines: 10,
+                    maxLines: 30,
+                    onChanged: (value) {
+                      content = _noteController.text.toString();
+                    },
+                    controller: _noteController,
+                  ),
+                ),
+              ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
