@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_notes/db/db.dart';
-import 'dart:math';
 
 import 'package:flutter_notes/widgets/notes_grid.dart';
 import 'package:flutter_notes/widgets/notes_list.dart';
+import 'package:flutter_notes/widgets/picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -16,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isList = false;
+  bool _isDropdownOpen = false;
 
   List<Map> notes = [];
   DatabaseHelper db = DatabaseHelper();
@@ -108,29 +109,75 @@ class _HomePageState extends State<HomePage> {
     getNotes();
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        trailing: CupertinoContextMenu(
-          actions: [
-            CupertinoContextMenuAction(
-              child: CupertinoButton(
-                onPressed: showNewNoteForm,
-                child: const Icon(CupertinoIcons.add_circled),
-              ),
-            ),
-            CupertinoContextMenuAction(
-              child: CupertinoButton(
-                onPressed: layoutToggle,
-                child: Icon(
-                  isList ? CupertinoIcons.grid : CupertinoIcons.list_bullet,
-                ),
-              ),
-            ),
-          ],
-          child: const Icon(CupertinoIcons.dot_square),
+        trailing: CupertinoButton(
+          onPressed: () {
+            setState(() {
+              _isDropdownOpen = !_isDropdownOpen;
+            });
+          },
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.ellipsis_circle_fill),
         ),
         backgroundColor: CupertinoColors.systemGrey.withOpacity(0.5),
         middle: const Text('Notes'),
       ),
-      child: isList ? NotesList(notes: notes) : NotesGrid(notes: notes),
+      child: Stack(
+        children: [
+          isList ? NotesList(notes: notes) : NotesGrid(notes: notes),
+          if (_isDropdownOpen)
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDropdownOpen = false;
+                });
+              },
+              child: Container(
+                color: const Color.fromRGBO(0, 0, 0, 0.3),
+              ),
+            ),
+          if (_isDropdownOpen)
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.13,
+              right: 8.0,
+              child: SizedBox(
+                width: 150.0,
+                child: CupertinoPopupSurface(
+                  child: Column(
+                    children: [
+                      CupertinoContextMenuAction(
+                        trailingIcon: CupertinoIcons.add_circled,
+                        isDefaultAction: true,
+                        child: CupertinoButton(
+                          onPressed: () {
+                            setState(() {
+                              _isDropdownOpen = !_isDropdownOpen;
+                            });
+                            showNewNoteForm();
+                          },
+                          child: const Text("New"),
+                        ),
+                      ),
+                      CupertinoContextMenuAction(
+                        trailingIcon: isList
+                            ? CupertinoIcons.square_grid_2x2_fill
+                            : CupertinoIcons.list_bullet,
+                        child: CupertinoButton(
+                          onPressed: () {
+                            setState(() {
+                              _isDropdownOpen = !_isDropdownOpen;
+                            });
+                            layoutToggle();
+                          },
+                          child: const Text("Layout"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

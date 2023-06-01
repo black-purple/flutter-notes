@@ -4,7 +4,7 @@ import 'package:flutter_notes/pages/note_page.dart';
 
 class NotesList extends StatelessWidget {
   final List notes;
-  NotesList({
+  const NotesList({
     super.key,
     required this.notes,
   });
@@ -33,7 +33,7 @@ class NotesList extends StatelessWidget {
                 notes[index]['content'],
                 overflow: TextOverflow.ellipsis,
               ),
-              backgroundColor: Colors.blueGrey,
+              backgroundColor: Colors.blueGrey.shade100,
             ),
           ),
         ),
