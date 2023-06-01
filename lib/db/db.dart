@@ -35,6 +35,11 @@ class DatabaseHelper {
     var data = notesDb!.rawQuery("SELECT * FROM notes");
     return data;
   }
+  getNoteWithId(int id) async {
+    var notesDb = await db;
+    var data = notesDb!.rawQuery("SELECT content FROM notes WHERE id = $id");
+    return data;
+  }
   addNote(String noteTitle, String noteContent, int color) async {
     var notesDb = await db;
     var data = notesDb!.rawInsert("INSERT INTO 'notes' ('title', 'content', 'color') VALUES ('$noteTitle', '$noteContent', '$color')");

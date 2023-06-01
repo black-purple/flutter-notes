@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'pages/home_page.dart';
 
 void main() {
@@ -12,7 +11,7 @@ class NotesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
+    return const CupertinoApp(
       home: HomePage(),
     );
   }

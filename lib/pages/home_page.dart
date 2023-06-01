@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:test_ios/db/db.dart';
-import 'package:test_ios/pages/note_page.dart';
+import 'package:flutter_notes/db/db.dart';
+import 'package:flutter_notes/pages/note_page.dart';
 import 'dart:math';
 
 class HomePage extends StatefulWidget {
@@ -23,10 +22,10 @@ class _HomePageState extends State<HomePage> {
     0: Colors.redAccent,
     1: Colors.lightBlue,
     2: Colors.lightGreenAccent,
-    3: Colors.yellowAccent,
-    4: Colors.greenAccent,
-    5: Colors.blueGrey,
+    3: Colors.greenAccent,
+    4: Colors.blueGrey,
   };
+
   List<Map> notes = [];
   DatabaseHelper db = DatabaseHelper();
 
@@ -38,13 +37,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      getNotes();
-    });
+    getNotes();
   }
 
   @override
   Widget build(BuildContext context) {
+    getNotes();
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         trailing: CupertinoButton(
@@ -93,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                         db.addNote(
                           _noteTitleController.text.trim().toString(),
                           _noteContentController.text.trim().toString(),
-                          Random().nextInt(5),
+                          Random().nextInt(4),
                         );
                         getNotes();
                         setState(() {});
@@ -122,14 +120,13 @@ class _HomePageState extends State<HomePage> {
         itemCount: notes.length,
         itemBuilder: (_, index) => SizedBox(
           child: Padding(
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(1),
             child: GestureDetector(
-              onTap: () => Get.to(
-                () => NotePage(
-                  id: notes[index]['id'],
-                  title: notes[index]['title'],
-                  content: notes[index]['content'],
-                  color: notes[index]['color'],
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => NotePage(
+                    id: notes[index]['id'],
+                  ),
                 ),
               ),
               child: Card(
