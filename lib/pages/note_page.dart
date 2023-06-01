@@ -20,12 +20,15 @@ class NotePage extends StatefulWidget {
 
 class _NotePageState extends State<NotePage> {
   var _noteController = TextEditingController();
+  var _titleController = TextEditingController();
 
   var content = "";
+  var title = "";
   Future getNote() async {
     var data = await db.getNoteWithId(widget.id);
     setState(() {
       content = data[0]['content'].toString();
+      title = data[0]['title'].toString();
     });
   }
 
@@ -38,6 +41,7 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     _noteController = TextEditingController(text: content);
+    _titleController = TextEditingController(text: title);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: CupertinoPageScaffold(
@@ -60,21 +64,44 @@ class _NotePageState extends State<NotePage> {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-              child: Focus(
-                onFocusChange: (focus) async {
-                  if (!focus) {
-                    db.updateNoteContent(
-                        _noteController.text.toString(), widget.id);
-                  }
-                },
-                child: CupertinoTextField(
-                  minLines: 10,
-                  maxLines: 30,
-                  onChanged: (value) {
-                    content = _noteController.text.toString();
-                  },
-                  controller: _noteController,
-                ),
+              child: Column(
+                children: [
+                  Focus(
+                    onFocusChange: (focus) async {
+                      if (!focus) {
+                        db.updateNoteTitle(
+                            _titleController.text.toString(), widget.id);
+                      }
+                    },
+                    child: CupertinoTextField(
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                      onChanged: (value) {
+                        content = _titleController.text.toString();
+                      },
+                      controller: _titleController,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Focus(
+                    onFocusChange: (focus) async {
+                      if (!focus) {
+                        db.updateNoteContent(
+                            _noteController.text.toString(), widget.id);
+                      }
+                    },
+                    child: CupertinoTextField(
+                      minLines: 10,
+                      maxLines: 30,
+                      onChanged: (value) {
+                        content = _noteController.text.toString();
+                      },
+                      controller: _noteController,
+                    ),
+                  ),
+                ],
               ),
             ),
           )),

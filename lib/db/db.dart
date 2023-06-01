@@ -37,7 +37,7 @@ class DatabaseHelper {
   }
   getNoteWithId(int id) async {
     var notesDb = await db;
-    var data = notesDb!.rawQuery("SELECT content FROM notes WHERE id = $id");
+    var data = notesDb!.rawQuery("SELECT * FROM notes WHERE id = $id");
     return data;
   }
   addNote(String noteTitle, String noteContent, int color) async {
@@ -50,7 +50,7 @@ class DatabaseHelper {
     var data = notesDb!.rawUpdate("UPDATE 'notes' SET 'content' = '$newNoteContent' WHERE id=$id");
     return data;
   }
-  updateNoteTitle(int newNoteTitle, int id) async {
+  updateNoteTitle(String newNoteTitle, int id) async {
     var notesDb = await db;
     var data = notesDb!.rawUpdate("UPDATE 'notes' SET 'title' = '$newNoteTitle' WHERE id=$id");
     return data;
