@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_notes/db/db.dart';
-import 'package:flutter_notes/pages/note_page.dart';
 import 'dart:math';
+
+import 'package:flutter_notes/widgets/notes_grid.dart';
+import 'package:flutter_notes/widgets/notes_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -14,26 +15,86 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _noteTitleController = TextEditingController();
-  final _noteContentController = TextEditingController();
-  final _key = GlobalKey<FormState>();
   bool isList = false;
-
-  Map<int, Color> colors = {
-    0: Colors.redAccent,
-    1: Colors.lightBlue,
-    2: Colors.lightGreenAccent,
-    3: Colors.greenAccent,
-    4: Colors.blueGrey,
-  };
 
   List<Map> notes = [];
   DatabaseHelper db = DatabaseHelper();
+  final _noteTitleController = TextEditingController();
+  final _noteContentController = TextEditingController();
+  final _key = GlobalKey<FormState>();
 
   Future getNotes() async {
     notes = await db.getNotes();
-    // isList = await db.getLayout();
     setState(() {});
+  }
+
+  showNewNoteForm() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: const Text("Ajouter Note"),
+        content: Form(
+          key: _key,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 15),
+            child: Column(
+              children: [
+                CupertinoTextFormFieldRow(
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Champ obligatoire";
+                    }
+                    return null;
+                  },
+                  placeholder: "Titre note",
+                  controller: _noteTitleController,
+                ),
+                CupertinoTextFormFieldRow(
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Champ obligatoire";
+                    }
+                    return null;
+                  },
+                  placeholder: "Contenu note",
+                  controller: _noteContentController,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text("Ajouter"),
+            onPressed: () {
+              if (_key.currentState!.validate()) {
+                db.addNote(
+                  _noteTitleController.text.trim().toString(),
+                  _noteContentController.text.trim().toString(),
+                );
+                getNotes();
+                setState(() {});
+                _noteTitleController.clear();
+                _noteContentController.clear();
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text("Annuler"),
+            onPressed: () => Navigator.of(context).pop(),
+          )
+        ],
+      ),
+    );
+  }
+
+  layoutToggle() {
+    setState(() {
+      isList = !isList;
+    });
   }
 
   @override
@@ -47,163 +108,29 @@ class _HomePageState extends State<HomePage> {
     getNotes();
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CupertinoButton(
-              child: const Icon(CupertinoIcons.add_circled),
-              onPressed: () {
-                showCupertinoModalPopup(
-                  context: context,
-                  builder: (_) => CupertinoAlertDialog(
-                    title: const Text("Ajouter Note"),
-                    content: Form(
-                      key: _key,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          children: [
-                            CupertinoTextFormFieldRow(
-                              validator: (value) {
-                                if (value != null && value.isEmpty) {
-                                  return "Champ obligatoire";
-                                }
-                                return null;
-                              },
-                              placeholder: "Titre note",
-                              controller: _noteTitleController,
-                            ),
-                            CupertinoTextFormFieldRow(
-                              validator: (value) {
-                                if (value != null && value.isEmpty) {
-                                  return "Champ obligatoire";
-                                }
-                                return null;
-                              },
-                              placeholder: "Contenu note",
-                              controller: _noteContentController,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    actions: [
-                      CupertinoDialogAction(
-                        isDefaultAction: true,
-                        child: const Text("Ajouter"),
-                        onPressed: () {
-                          if (_key.currentState!.validate()) {
-                            db.addNote(
-                              _noteTitleController.text.trim().toString(),
-                              _noteContentController.text.trim().toString(),
-                              Random().nextInt(4),
-                            );
-                            getNotes();
-                            setState(() {});
-                            _noteTitleController.clear();
-                            _noteContentController.clear();
-                            Navigator.of(context).pop();
-                          }
-                        },
-                      ),
-                      CupertinoDialogAction(
-                        isDestructiveAction: true,
-                        child: const Text("Annuler"),
-                        onPressed: () => Navigator.of(context).pop(),
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-            CupertinoButton(
-              child: Icon(
-                isList ? CupertinoIcons.grid : CupertinoIcons.list_bullet,
+        trailing: CupertinoContextMenu(
+          actions: [
+            CupertinoContextMenuAction(
+              child: CupertinoButton(
+                onPressed: showNewNoteForm,
+                child: const Icon(CupertinoIcons.add_circled),
               ),
-              onPressed: () {
-                setState(() {
-                  isList = !isList;
-                  db.layoutSwap(isList);
-                });
-              },
+            ),
+            CupertinoContextMenuAction(
+              child: CupertinoButton(
+                onPressed: layoutToggle,
+                child: Icon(
+                  isList ? CupertinoIcons.grid : CupertinoIcons.list_bullet,
+                ),
+              ),
             ),
           ],
+          child: const Icon(CupertinoIcons.dot_square),
         ),
         backgroundColor: CupertinoColors.systemGrey.withOpacity(0.5),
         middle: const Text('Notes'),
       ),
-      child: isList
-          ? ListView.builder(
-              itemCount: notes.length,
-              itemBuilder: (_, index) => SizedBox(
-                child: Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => NotePage(
-                          id: notes[index]['id'],
-                        ),
-                      ),
-                    ),
-                    child: CupertinoListTile(
-                      title: Text(
-                        notes[index]['title'],
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        notes[index]['content'],
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      backgroundColor: colors[notes[index]['color']],
-                    ),
-                  ),
-                ),
-              ),
-            )
-          : GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3),
-              itemCount: notes.length,
-              itemBuilder: (_, index) => SizedBox(
-                child: Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => NotePage(
-                          id: notes[index]['id'],
-                        ),
-                      ),
-                    ),
-                    child: Card(
-                      color: colors[notes[index]['color']],
-                      elevation: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                notes[index]['title'],
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                notes[index]['content'],
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ]),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+      child: isList ? NotesList(notes: notes) : NotesGrid(notes: notes),
     );
   }
 }

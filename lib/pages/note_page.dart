@@ -47,8 +47,31 @@ class _NotePageState extends State<NotePage> {
             previousPageTitle: "Notes",
             trailing: CupertinoButton(
               onPressed: () {
-                db.deleteNote(widget.id);
-                Navigator.of(context).pop();
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (_) => CupertinoActionSheet(
+                    title: const Text(
+                        "Etes vous sur de vouloir supprimer cette note?"),
+                    actions: [
+                      CupertinoActionSheetAction(
+                        isDefaultAction: true,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Annuler"),
+                      ),
+                      CupertinoActionSheetAction(
+                        isDestructiveAction: true,
+                        onPressed: () {
+                          db.deleteNote(widget.id);
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Supprimer"),
+                      ),
+                    ],
+                  ),
+                );
               },
               child: const Icon(
                 CupertinoIcons.trash,
@@ -61,7 +84,7 @@ class _NotePageState extends State<NotePage> {
             child: Column(
               children: [
                 Focus(
-                  onFocusChange: (focus) async {
+                  onFocusChange: (focus) {
                     if (!focus) {
                       db.updateNoteTitle(
                         _titleController.text.toString(),
@@ -70,6 +93,7 @@ class _NotePageState extends State<NotePage> {
                     }
                   },
                   child: CupertinoTextField(
+                    controller: _titleController,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25,
@@ -77,24 +101,23 @@ class _NotePageState extends State<NotePage> {
                     onChanged: (value) {
                       title = _titleController.text.toString();
                     },
-                    controller: _titleController,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Focus(
-                  onFocusChange: (focus) async {
+                  onFocusChange: (focus) {
                     if (!focus) {
                       db.updateNoteContent(
                           _noteController.text.toString(), widget.id);
                     }
                   },
                   child: CupertinoTextField(
+                    controller: _noteController,
                     minLines: 10,
                     maxLines: 30,
                     onChanged: (value) {
                       content = _noteController.text.toString();
                     },
-                    controller: _noteController,
                   ),
                 ),
               ],
